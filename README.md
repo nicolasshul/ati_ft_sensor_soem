@@ -5,10 +5,11 @@ Usage After Cloning:
 
 ```
 git submodule init
+git submodule update --init --recursive
 
 sudo apt install cmake \
   build-essential \
-  build-ninja
+  ninja-build
 
 cmake --preset default
 cmake --build --preset default
