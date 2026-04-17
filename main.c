@@ -22,14 +22,68 @@ typedef struct __attribute__((packed)) {
 
 static ecx_contextt ctx;
 
-uint32 verify_network_configuration(ecx_contextt * ctx)
-{
+uint32 verify_network_configuration(ecx_contextt * ctx) {
   if (ctx->slavecount == NUMBER_OF_SLAVES) {
     return 0;
   }
   else {
     return 1;
   }
+}
+
+static int sdo_read_u8(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint8 *val) {
+    int size = sizeof(*val);
+    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+    if (rc <= 0) {
+        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+        return 0;
+    }
+    return 1;
+}
+
+static int sdo_read_u16(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint16 *val) {
+    int size = sizeof(*val);
+    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+    if (rc <= 0) {
+        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+        return 0;
+    }
+    return 1;
+}
+
+static int sdo_read_u32(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint32 *val) {
+    int size = sizeof(*val);
+    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+    if (rc <= 0) {
+        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+        return 0;
+    }
+    return 1;
+}
+
+static int sdo_read_s32(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, int32 *val) {
+    int size = sizeof(*val);
+    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+    if (rc <= 0) {
+        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+        return 0;
+    }
+    return 1;
+}
+
+static int sdo_read_string(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, char *buf, size_t buf_sz) {
+    int size = (int)buf_sz;
+    memset(buf, 0, buf_sz);
+
+    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, buf, EC_TIMEOUTRXM);
+    if (rc <= 0) {
+        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+        return 0;
+    }
+
+    // make sure it is terminated even if buffer is full
+    buf[buf_sz - 1] = '\0';
+    return 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -114,6 +168,44 @@ int main(int argc, char *argv[]) {
 
   // Operational state reached, starting 
 
+
+    // Reading SDO Data
+
+    uint16 slave = 1;
+
+    // identity object 0x1018
+    uint32 vendor_id = 0, product_code = 0, revision = 0, serial_num = 0;
+    sdo_read_u32(&ctx, slave, 0x1018, 1, &vendor_id);
+    sdo_read_u32(&ctx, slave, 0x1018, 2, &product_code);
+    sdo_read_u32(&ctx, slave, 0x1018, 3, &revision);
+    sdo_read_u32(&ctx, slave, 0x1018, 4, &serial_num);
+
+    //  0x2040 calibration/settings block
+    char ft_serial[9];
+    char cal_part[31];
+    char cal_family[9];
+    char cal_time[31];
+    uint8 force_units = 0, torque_units = 0;
+    int32 counts_per_force = 0, counts_per_torque = 0;
+
+    sdo_read_string(&ctx, slave, 0x2040, 1, ft_serial, sizeof(ft_serial));
+    sdo_read_string(&ctx, slave, 0x2040, 2, cal_part, sizeof(cal_part));
+    sdo_read_string(&ctx, slave, 0x2040, 3, cal_family, sizeof(cal_family));
+    sdo_read_string(&ctx, slave, 0x2040, 4, cal_time, sizeof(cal_time));
+    sdo_read_u8(&ctx, slave, 0x2040, 41, &force_units);
+    sdo_read_u8(&ctx, slave, 0x2040, 42, &torque_units);
+    sdo_read_s32(&ctx, slave, 0x2040, 49, &counts_per_force);
+    sdo_read_s32(&ctx, slave, 0x2040, 50, &counts_per_torque);
+
+    // 0x2020 tool transform
+    int32 Rx, Ry, Rz, Dx, Dy, Dz;
+    sdo_read_s32(&ctx, slave, 0x2020, 1, &Rx);
+    sdo_read_s32(&ctx, slave, 0x2020, 2, &Ry);
+    sdo_read_s32(&ctx, slave, 0x2020, 3, &Rz);
+    sdo_read_s32(&ctx, slave, 0x2020, 4, &Dx);
+    sdo_read_s32(&ctx, slave, 0x2020, 5, &Dy);
+    sdo_read_s32(&ctx, slave, 0x2020, 6, &Dz);
+
   while (1) {
     // Keep control words zero unless command needs to be sent
     out->control1 = 0;
@@ -125,8 +217,8 @@ int main(int argc, char *argv[]) {
 
     if (wkc >= expectedWKC) {
       printf("Fx=%d  Fy=%d  Fz=%d  Tx=%d  Ty=%d  Tz=%d\n",
-          in->fx, in->fy, in->fz,
-          in->tx, in->ty, in->tz);
+          in->fx / counts_per_force, in->fy / counts_per_force, in->fz / counts_per_force,
+          in->tx / counts_per_torque, in->ty / counts_per_torque, in->tz / counts_per_torque);
     }
     else {
       fprintf(stderr, "Bad WKC: got %d expected >= %d\n", wkc, expectedWKC);
