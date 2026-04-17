@@ -20,3 +20,8 @@ The sample binaries needs access to raw sockets to function properly. Run the fo
 ```
 sudo setcap cap_net_raw+ep build/default/bin/ec_sample
 ```
+
+Find the ethernet port using `ip link`, then run using:
+```
+./bin/app <port name>
+```
