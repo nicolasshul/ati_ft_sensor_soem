@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "ethercat.h"
+#include "soem/soem.h"
 
 typedef struct __attribute__((packed)) {
   uint32_t control1;   // 0x7010:01
