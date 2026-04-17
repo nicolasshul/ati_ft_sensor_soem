@@ -18,6 +18,39 @@ typedef struct __attribute__((packed)) {
   int32_t tz;          // 0x6000:06
 } ati_txpdo_t;
 
+typedef struct {
+  uint32 vendor_id,
+  uint32 product_code,
+  uint32 revision,
+  uint32 serial_num
+} ati_identity_t;
+
+typedef struct {
+  char ft_serial[9],
+  char cal_part[31],
+  char cal_family[9],
+  char cal_time[31],
+  uint8_t force_units,
+  uint8_t torque_units,
+  int32_t counts_per_force,
+  int32_t counts_per_torque
+} ati_calibration_t;
+
+typedef struct {
+  int32_t Rx,
+  int32_t Ry,
+  int32_t Rz,
+  int32_t Dx,
+  int32_t Dy,
+  int32_t Dz
+} ati_transform_t;
+
+typedef struct {
+  ati_identity_t identity,
+  ati_calibration_t calibration,
+  ati_transform_t transform
+} ati_sdo_t;
+
 #define NUMBER_OF_SLAVES 1
 #define IOMAP_SIZE 4096
 
@@ -173,39 +206,37 @@ int main(int argc, char *argv[]) {
     // Reading SDO Data
 
     uint16 slave = 1;
+    ati_sdo_t sdo_data;
 
     // identity object 0x1018
-    uint32 vendor_id = 0, product_code = 0, revision = 0, serial_num = 0;
-    sdo_read_u32(&ctx, slave, 0x1018, 1, &vendor_id);
-    sdo_read_u32(&ctx, slave, 0x1018, 2, &product_code);
-    sdo_read_u32(&ctx, slave, 0x1018, 3, &revision);
-    sdo_read_u32(&ctx, slave, 0x1018, 4, &serial_num);
+    ati_identity_t sdo_id = sdo_data.identity;
+
+    sdo_read_u32(&ctx, slave, 0x1018, 1, &sdo_id.vendor_id);
+    sdo_read_u32(&ctx, slave, 0x1018, 2, &sdo_id.product_code);
+    sdo_read_u32(&ctx, slave, 0x1018, 3, &sdo_id.revision);
+    sdo_read_u32(&ctx, slave, 0x1018, 4, &sdo_id.serial_num);
 
     //  0x2040 calibration/settings block
-    char ft_serial[9];
-    char cal_part[31];
-    char cal_family[9];
-    char cal_time[31];
-    uint8 force_units = 0, torque_units = 0;
-    int32 counts_per_force = 0, counts_per_torque = 0;
+    ati_calibration_t cal = sdo_data.calibration;
 
-    sdo_read_string(&ctx, slave, 0x2040, 1, ft_serial, sizeof(ft_serial));
-    sdo_read_string(&ctx, slave, 0x2040, 2, cal_part, sizeof(cal_part));
-    sdo_read_string(&ctx, slave, 0x2040, 3, cal_family, sizeof(cal_family));
-    sdo_read_string(&ctx, slave, 0x2040, 4, cal_time, sizeof(cal_time));
-    sdo_read_u8(&ctx, slave, 0x2040, 41, &force_units);
-    sdo_read_u8(&ctx, slave, 0x2040, 42, &torque_units);
-    sdo_read_s32(&ctx, slave, 0x2040, 49, &counts_per_force);
-    sdo_read_s32(&ctx, slave, 0x2040, 50, &counts_per_torque);
+    sdo_read_string(&ctx, slave, 0x2040, 1, cal.ft_serial, sizeof(ft_serial));
+    sdo_read_string(&ctx, slave, 0x2040, 2, cal.cal_part, sizeof(cal_part));
+    sdo_read_string(&ctx, slave, 0x2040, 3, cal.cal_family, sizeof(cal_family));
+    sdo_read_string(&ctx, slave, 0x2040, 4, cal.cal_time, sizeof(cal_time));
+    sdo_read_u8(&ctx, slave, 0x2040, 41, &cal.force_units);
+    sdo_read_u8(&ctx, slave, 0x2040, 42, &cal.torque_units);
+    sdo_read_s32(&ctx, slave, 0x2040, 49, &cal.counts_per_force);
+    sdo_read_s32(&ctx, slave, 0x2040, 50, &cal.counts_per_torque);
 
     // 0x2020 tool transform
-    int32 Rx, Ry, Rz, Dx, Dy, Dz;
-    sdo_read_s32(&ctx, slave, 0x2020, 1, &Rx);
-    sdo_read_s32(&ctx, slave, 0x2020, 2, &Ry);
-    sdo_read_s32(&ctx, slave, 0x2020, 3, &Rz);
-    sdo_read_s32(&ctx, slave, 0x2020, 4, &Dx);
-    sdo_read_s32(&ctx, slave, 0x2020, 5, &Dy);
-    sdo_read_s32(&ctx, slave, 0x2020, 6, &Dz);
+    ati_transform_t tf = sdo.transform;
+
+    sdo_read_s32(&ctx, slave, 0x2020, 1, &tf.Rx);
+    sdo_read_s32(&ctx, slave, 0x2020, 2, &tf.Ry);
+    sdo_read_s32(&ctx, slave, 0x2020, 3, &tf.Rz);
+    sdo_read_s32(&ctx, slave, 0x2020, 4, &tf.Dx);
+    sdo_read_s32(&ctx, slave, 0x2020, 5, &tf.Dy);
+    sdo_read_s32(&ctx, slave, 0x2020, 6, &tf.Dz);
 
   while (1) {
     // Keep control words zero unless command needs to be sent
@@ -217,9 +248,9 @@ int main(int argc, char *argv[]) {
     int wkc = ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
 
     if (wkc >= expectedWKC) {
-      printf("Fx=%d  Fy=%d  Fz=%d  Tx=%d  Ty=%d  Tz=%d\n",
-          in->fx / counts_per_force, in->fy / counts_per_force, in->fz / counts_per_force,
-          in->tx / counts_per_torque, in->ty / counts_per_torque, in->tz / counts_per_torque);
+      printf("Fx=%f  Fy=%f  Fz=%f  Tx=%f  Ty=%f  Tz=%f\n",
+          (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
+          (double) in->tx / cal.counts_per_torque, (double in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
     }
     else {
       fprintf(stderr, "Bad WKC: got %d expected >= %d\n", wkc, expectedWKC);
