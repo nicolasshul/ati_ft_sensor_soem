@@ -18,10 +18,10 @@ cmake --build --preset default
 The sample binaries needs access to raw sockets to function properly. Run the following command to give the binary these capabilities (example for ec_sample):
 
 ```
-sudo setcap cap_net_raw+ep build/default/bin/ec_sample
+sudo setcap cap_net_raw+ep /bin/app
 ```
 
 Find the ethernet port using `ip link`, then run using:
 ```
-./bin/app <port name>
+sudo ./bin/app <port name>
 ```
