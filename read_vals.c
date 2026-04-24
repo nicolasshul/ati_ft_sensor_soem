@@ -211,6 +211,7 @@ int main(int argc, char *argv[]) {
         if (fabs(t - roundf(t)) < 1e-6) {
           printf("Warming up (%ds)\n", 5 - (int) roundf(t));
         }
+        t += dt;
       }
     }
     else {
