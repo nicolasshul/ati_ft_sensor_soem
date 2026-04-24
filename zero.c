@@ -93,19 +93,19 @@ int main(int argc, char *argv[]) {
   int ctrl_size = sizeof(ctrl);
   uint16_t slave = 1;
   // read current control word
-  if (ecx_SDOread(ctx, slave, 0x7010, 0x01, FALSE, &ctrl_size, &ctrl, EC_TIMEOUTRXM) <= 0) {
+  if (ecx_SDOread(&ctx, slave, 0x7010, 0x01, FALSE, &ctrl_size, &ctrl, EC_TIMEOUTRXM) <= 0) {
     printf("SDO read failed\n");
     return 1;
   }
 
   // set bit 0
   int32_t set_cmd = ctrl | (1 << 0);
-  ecx_SDOwrite(ctx, slave, 0x7010, 0x01, FALSE, sizeof(set_cmd), &set_cmd, EC_TIMEOUTRXM);
+  ecx_SDOwrite(&ctx, slave, 0x7010, 0x01, FALSE, sizeof(set_cmd), &set_cmd, EC_TIMEOUTRXM);
 
   usleep(10000);
 
   int32_t clear_cmd = ctrl & ~(1 << 0);
-  ecx_SDOwrite(ctx, slave, 0x7010, 0x01, FALSE, sizeof(clear_cmd), &clear_cmd, EC_TIMEOUTRXM);
+  ecx_SDOwrite(&ctx, slave, 0x7010, 0x01, FALSE, sizeof(clear_cmd), &clear_cmd, EC_TIMEOUTRXM);
 
   return 0;
 }
