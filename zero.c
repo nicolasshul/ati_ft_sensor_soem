@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 10; i++) {
     ecx_send_processdata(&ctx);
     ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
-    usleep(1000;
+    usleep(1000);
   }
 
   return 0;
