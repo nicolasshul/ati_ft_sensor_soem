@@ -89,23 +89,25 @@ int main(int argc, char *argv[]) {
   }
 
   printf("In OP State, zeroing sensor...\n");
-  int32_t ctrl = 0;
-  int ctrl_size = sizeof(ctrl);
-  uint16_t slave = 1;
-  // read current control word
-  if (ecx_SDOread(&ctx, slave, 0x7010, 0x01, FALSE, &ctrl_size, &ctrl, EC_TIMEOUTRXM) <= 0) {
-    printf("SDO read failed\n");
-    return 1;
+
+  // Setting bit 0 to 1
+  int32_t old_cntrl = out->control1;
+  out->control1 = out->control1 | 0x01;
+
+  for (int i = 0; i < 10; i++) {
+    ecx_send_processdata(&ctx);
+    ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
+    usleep(1000;
   }
 
-  // set bit 0
-  int32_t set_cmd = ctrl | (1 << 0);
-  ecx_SDOwrite(&ctx, slave, 0x7010, 0x01, FALSE, sizeof(set_cmd), &set_cmd, EC_TIMEOUTRXM);
+  // Resetting control bit
+  out->control1 = old_cntrl;
 
-  usleep(10000);
-
-  int32_t clear_cmd = ctrl & ~(1 << 0);
-  ecx_SDOwrite(&ctx, slave, 0x7010, 0x01, FALSE, sizeof(clear_cmd), &clear_cmd, EC_TIMEOUTRXM);
+  for (int i = 0; i < 10; i++) {
+    ecx_send_processdata(&ctx);
+    ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
+    usleep(1000;
+  }
 
   return 0;
 }
