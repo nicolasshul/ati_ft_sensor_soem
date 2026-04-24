@@ -9,6 +9,8 @@ t = []
 fx, fy, fz = [], [], []
 tx, ty, tz = [], [], []
 
+cols = ["t", "fx", "fy", "fz", "tx", "ty", "tz"]
+
 # Read CSV
 with open(filename, 'r') as f:
     reader = csv.DictReader(f)
