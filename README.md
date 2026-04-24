@@ -14,7 +14,7 @@ cmake --preset default
 cmake --build --preset default
 ```
 
-The sample binaries needs access to raw sockets to function properly. Run the following command to give the binary these capabilities (example for app):
+The binaries need access to raw sockets to function properly. Run the following command to give the binary these capabilities:
 
 ```
 sudo setcap cap_net_raw+ep ./read_vals
@@ -26,12 +26,12 @@ Find the ethernet port using `ip link` (whichever port changes when plugging and
 sudo ./zero <port_name>
 ```
 
-After zeroing, run using:
+After zeroing, run and store output at output_filename using:
 ```
 sudo ./read_vals <port_name> <output_filename>
 ```
 
-The ouput is stored as a csv at output_filename. To plot the csv, first set up you python virtual environment:
+To plot the csv, first set up your python virtual environment:
 ```
 sudo apt update
 sudo apt install -y python3 python3-venv python3-pip
