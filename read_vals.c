@@ -170,17 +170,17 @@ int main(int argc, char *argv[]) {
     //  0x2040 calibration/settings block
     ati_calibration_t cal = sdo_data.calibration;
 
-    sdo_read_string(&ctx, slave, 0x2040, 1, cal.ft_serial, sizeof(ft_serial));
-    sdo_read_string(&ctx, slave, 0x2040, 2, cal.cal_part, sizeof(cal_part));
-    sdo_read_string(&ctx, slave, 0x2040, 3, cal.cal_family, sizeof(cal_family));
-    sdo_read_string(&ctx, slave, 0x2040, 4, cal.cal_time, sizeof(cal_time));
+    sdo_read_string(&ctx, slave, 0x2040, 1, cal.ft_serial, sizeof(cal.ft_serial));
+    sdo_read_string(&ctx, slave, 0x2040, 2, cal.cal_part, sizeof(cal.cal_part));
+    sdo_read_string(&ctx, slave, 0x2040, 3, cal.cal_family, sizeof(cal.cal_family));
+    sdo_read_string(&ctx, slave, 0x2040, 4, cal.cal_time, sizeof(cal.cal_time));
     sdo_read_u8(&ctx, slave, 0x2040, 41, &cal.force_units);
     sdo_read_u8(&ctx, slave, 0x2040, 42, &cal.torque_units);
     sdo_read_s32(&ctx, slave, 0x2040, 49, &cal.counts_per_force);
     sdo_read_s32(&ctx, slave, 0x2040, 50, &cal.counts_per_torque);
 
     // 0x2020 tool transform
-    ati_transform_t tf = sdo.transform;
+    ati_transform_t tf = sdo_data.transform;
 
     sdo_read_s32(&ctx, slave, 0x2020, 1, &tf.Rx);
     sdo_read_s32(&ctx, slave, 0x2020, 2, &tf.Ry);
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
     FILE *fp = fopen("data.csv", "w");
     fprintf(fp, "t,fx,fy,fz,tx,ty,tz\n");
     double t = 0.0;
-    doubt dt = 0.001;
+    double dt = 0.001;
 
   while (1) {
     // Keep control words zero unless command needs to be sent
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
     if (wkc >= expectedWKC) {
       fprintf(fp, "Fx=%f  Fy=%f  Fz=%f  Tx=%f  Ty=%f  Tz=%f\n",
           (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
-          (double) in->tx / cal.counts_per_torque, (double in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
+          (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
       t += dt;
     }
     else {
@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
     usleep(1000);
   }
 
-  close(fp);
+  fclose(fp);
 
 }
 
