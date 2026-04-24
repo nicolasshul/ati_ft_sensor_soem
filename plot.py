@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import csv
 
 # File path
 filename = "data.csv"
