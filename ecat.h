@@ -13,36 +13,36 @@ typedef struct __attribute__((packed)) {
 } ati_txpdo_t;
 
 typedef struct {
-  uint32 vendor_id,
-  uint32 product_code,
-  uint32 revision,
-  uint32 serial_num
+  uint32 vendor_id;
+  uint32 product_code;
+  uint32 revision;
+  uint32 serial_num;
 } ati_identity_t;
 
 typedef struct {
-  char ft_serial[9],
-  char cal_part[31],
-  char cal_family[9],
-  char cal_time[31],
-  uint8_t force_units,
-  uint8_t torque_units,
-  int32_t counts_per_force,
-  int32_t counts_per_torque
+  char ft_serial[9];
+  char cal_part[31];
+  char cal_family[9];
+  char cal_time[31];
+  uint8_t force_units;
+  uint8_t torque_units;
+  int32_t counts_per_force;
+  int32_t counts_per_torque;
 } ati_calibration_t;
 
 typedef struct {
-  int32_t Rx,
-  int32_t Ry,
-  int32_t Rz,
-  int32_t Dx,
-  int32_t Dy,
-  int32_t Dz
+  int32_t Rx;
+  int32_t Ry;
+  int32_t Rz;
+  int32_t Dx;
+  int32_t Dy;
+  int32_t Dz;
 } ati_transform_t;
 
 typedef struct {
-  ati_identity_t identity,
-  ati_calibration_t calibration,
-  ati_transform_t transform
+  ati_identity_t identity;
+  ati_calibration_t calibration;
+  ati_transform_t transform;
 } ati_sdo_t;
 
 #define NUMBER_OF_SLAVES 1

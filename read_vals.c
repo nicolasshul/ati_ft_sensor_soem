@@ -189,6 +189,12 @@ int main(int argc, char *argv[]) {
     sdo_read_s32(&ctx, slave, 0x2020, 5, &tf.Dy);
     sdo_read_s32(&ctx, slave, 0x2020, 6, &tf.Dz);
 
+
+    FILE *fp = fopen("data.csv", "w");
+    fprintf(fp, "t,fx,fy,fz,tx,ty,tz\n");
+    double t = 0.0;
+    doubt dt = 0.001;
+
   while (1) {
     // Keep control words zero unless command needs to be sent
     out->control1 = 0;
@@ -199,9 +205,10 @@ int main(int argc, char *argv[]) {
     int wkc = ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
 
     if (wkc >= expectedWKC) {
-      printf("Fx=%f  Fy=%f  Fz=%f  Tx=%f  Ty=%f  Tz=%f\n",
+      fprintf(fp, "Fx=%f  Fy=%f  Fz=%f  Tx=%f  Ty=%f  Tz=%f\n",
           (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
           (double) in->tx / cal.counts_per_torque, (double in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
+      t += dt;
     }
     else {
       fprintf(stderr, "Bad WKC: got %d expected >= %d\n", wkc, expectedWKC);
@@ -221,6 +228,7 @@ int main(int argc, char *argv[]) {
     usleep(1000);
   }
 
+  close(fp);
 
 }
 
