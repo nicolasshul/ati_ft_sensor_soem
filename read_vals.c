@@ -187,6 +187,18 @@ int main(int argc, char *argv[]) {
     double t = 0.0;
     double dt = 0.001;
 
+    printf("Warming up (5s)");
+    usleep(1000000);
+    printf("Warming up (4s)");
+    usleep(1000000);
+    printf("Warming up (3s)");
+    usleep(1000000);
+    printf("Warming up (2s)");
+    usleep(1000000);
+    printf("Warming up (1s)");
+    usleep(1000000);
+
+
   while (1) {
     // Keep control words zero unless command needs to be sent
     out->control1 = 0;
