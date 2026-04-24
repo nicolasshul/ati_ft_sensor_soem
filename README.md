@@ -12,8 +12,6 @@ sudo apt install -y cmake build-essential ninja-build
 
 cmake --preset default
 cmake --build --preset default
-
-make
 ```
 
 The sample binaries needs access to raw sockets to function properly. Run the following command to give the binary these capabilities (example for app):
@@ -23,7 +21,7 @@ sudo setcap cap_net_raw+ep ./read_vals
 sudo setcap cap_net_raw+ep ./zero
 ```
 
-Find the ethernet port using `ip link`, then zero using:
+Find the ethernet port using `ip link` (whichever port changes when plugging and unplugging the ethernet wire), then zero using:
 ```
 sudo ./zero <port_name>
 ```
@@ -31,7 +29,7 @@ sudo ./zero <port_name>
 After zeroing, run using:
 ```
 sudo ./read_vals <port_name> <output_filename>
-``
+```
 
 The ouput is stored as a csv at output_filename. To plot the csv, first set up you python virtual environment:
 ```
@@ -43,7 +41,7 @@ source plot_env/bin/activate
 
 pip install --upgrade pip
 pip install matplotlib
-``
+```
 
 In order to plot, run:
 ```
