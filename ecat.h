@@ -45,6 +45,15 @@ typedef struct {
   ati_transform_t transform;
 } ati_sdo_t;
 
+uint32 verify_network_configuration(ecx_contextt * ctx) {
+  if (ctx->slavecount == NUMBER_OF_SLAVES) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
 #define NUMBER_OF_SLAVES 1
 #define IOMAP_SIZE 4096
 

@@ -7,15 +7,6 @@
 
 static ecx_contextt ctx;
 
-uint32 verify_network_configuration(ecx_contextt * ctx) {
-  if (ctx->slavecount == NUMBER_OF_SLAVES) {
-    return 0;
-  }
-  else {
-    return 1;
-  }
-}
-
 static int sdo_read_u8(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint8 *val) {
     int size = sizeof(*val);
     int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
@@ -156,7 +147,7 @@ int main(int argc, char *argv[]) {
 
     // Reading SDO Data
 
-    uint16 slave = 1;
+    uint16_t slave = 1;
     ati_sdo_t sdo_data;
 
     // identity object 0x1018
