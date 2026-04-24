@@ -63,12 +63,13 @@ static int sdo_read_string(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 
 }
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    fprintf(stderr, "Usage : %s <ifacename>\n", argv[0]);
+  if (argc < 3) {
+    fprintf(stderr, "Usage : %s <ifacename> <out_filename>\n", argv[0]);
     return 1;
   }
 
   char * iface = argv[1];
+  char * out_filename = argv[2];
 
   // Sets up NIC
   if (ecx_init(&ctx, iface) <= 0) {
@@ -181,7 +182,7 @@ int main(int argc, char *argv[]) {
     sdo_read_s32(&ctx, slave, 0x2020, 6, &tf.Dz);
 
 
-    FILE *fp = fopen("data.csv", "w");
+    FILE *fp = fopen(out_filename, "w");
     fprintf(fp, "t,fx,fy,fz,tx,ty,tz\n");
     double t = 0.0;
     double dt = 0.001;

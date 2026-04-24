@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
+import sys
 import csv
 
+if len(sys.argv) < 2:
+    print("Usage: python plot.py <csv_file>")
+    sys.exit(1)
+
 # File path
-filename = "data.csv"
+filename = sys.argv[1]
 
 # Storage
 t = []
@@ -16,7 +21,6 @@ with open(filename, 'r') as f:
     reader = csv.DictReader(f)
     for row in reader:
         if any(row[c] is None or row[c] == "" for c in cols):
-            print("Skipping incomplete row:", row)
             continue
         t.append(float(row['t']))
         fx.append(float(row['fx']))
@@ -32,7 +36,7 @@ plt.plot(t, fx, label='Fx')
 plt.plot(t, fy, label='Fy')
 plt.plot(t, fz, label='Fz')
 plt.xlabel('Time (s)')
-plt.ylabel('Force')
+plt.ylabel('Force (N)')
 plt.title('Force vs Time')
 plt.legend()
 plt.grid()
@@ -43,7 +47,7 @@ plt.plot(t, tx, label='Tx')
 plt.plot(t, ty, label='Ty')
 plt.plot(t, tz, label='Tz')
 plt.xlabel('Time (s)')
-plt.ylabel('Torque')
+plt.ylabel('Torque (Nm)')
 plt.title('Torque vs Time')
 plt.legend()
 plt.grid()
