@@ -90,10 +90,10 @@ int main(int argc, char *argv[]) {
 
   printf("In OP State, zeroing sensor...\n");
   int32_t ctrl = 0;
-  int size = sizeof(ctrl);
+  int ctrl_size = sizeof(ctrl);
   uint16_t slave = 1;
   // read current control word
-  if (ecx_SDOread(ctx, slave, 0x7010, 0x01, FALSE, &size, &ctrl, EC_TIMEOUTRXM) <= 0) {
+  if (ecx_SDOread(ctx, slave, 0x7010, 0x01, FALSE, &ctrl_size, &ctrl, EC_TIMEOUTRXM) <= 0) {
     printf("SDO read failed\n");
     return 1;
   }
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
   usleep(10000);
 
   int32_t clear_cmd = ctrl & ~(1 << 0);
-  ec_SDOwrite(SLAVE, 0x7010, 0x01, FALSE, sizeof(clear_cmd), &clear_cmd, EC_TIMEOUTRXM);
+  ecx_SDOwrite(ctx, slave, 0x7010, 0x01, FALSE, sizeof(clear_cmd), &clear_cmd, EC_TIMEOUTRXM);
 
   return 0;
 }
