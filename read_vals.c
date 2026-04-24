@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 
 #include "soem/soem.h"
 #include "ecat.h"
@@ -8,58 +9,58 @@
 static ecx_contextt ctx;
 
 static int sdo_read_u8(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint8 *val) {
-    int size = sizeof(*val);
-    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
-    if (rc <= 0) {
-        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
-        return 0;
-    }
-    return 1;
+  int size = sizeof(*val);
+  int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+  if (rc <= 0) {
+    fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+    return 0;
+  }
+  return 1;
 }
 
 static int sdo_read_u16(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint16 *val) {
-    int size = sizeof(*val);
-    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
-    if (rc <= 0) {
-        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
-        return 0;
-    }
-    return 1;
+  int size = sizeof(*val);
+  int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+  if (rc <= 0) {
+    fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+    return 0;
+  }
+  return 1;
 }
 
 static int sdo_read_u32(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, uint32 *val) {
-    int size = sizeof(*val);
-    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
-    if (rc <= 0) {
-        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
-        return 0;
-    }
-    return 1;
+  int size = sizeof(*val);
+  int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+  if (rc <= 0) {
+    fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+    return 0;
+  }
+  return 1;
 }
 
 static int sdo_read_s32(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, int32 *val) {
-    int size = sizeof(*val);
-    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
-    if (rc <= 0) {
-        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
-        return 0;
-    }
-    return 1;
+  int size = sizeof(*val);
+  int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, val, EC_TIMEOUTRXM);
+  if (rc <= 0) {
+    fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+    return 0;
+  }
+  return 1;
 }
 
 static int sdo_read_string(ecx_contextt *ctx, uint16 slave, uint16 index, uint8 subidx, char *buf, size_t buf_sz) {
-    int size = (int)buf_sz;
-    memset(buf, 0, buf_sz);
+  int size = (int)buf_sz;
+  memset(buf, 0, buf_sz);
 
-    int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, buf, EC_TIMEOUTRXM);
-    if (rc <= 0) {
-        fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
-        return 0;
-    }
+  int rc = ecx_SDOread(ctx, slave, index, subidx, FALSE, &size, buf, EC_TIMEOUTRXM);
+  if (rc <= 0) {
+    fprintf(stderr, "SDO read failed: slave=%u idx=0x%04X sub=0x%02X\n", slave, index, subidx);
+    return 0;
+  }
 
-    // make sure it is terminated even if buffer is full
-    buf[buf_sz - 1] = '\0';
-    return 1;
+  // make sure it is terminated even if buffer is full
+  buf[buf_sz - 1] = '\0';
+  return 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -146,58 +147,46 @@ int main(int argc, char *argv[]) {
   // Operational state reached, starting 
 
 
-    // Reading SDO Data
+  // Reading SDO Data
 
-    uint16_t slave = 1;
-    ati_sdo_t sdo_data;
+  uint16_t slave = 1;
+  ati_sdo_t sdo_data;
 
-    // identity object 0x1018
-    ati_identity_t sdo_id = sdo_data.identity;
+  // identity object 0x1018
+  ati_identity_t sdo_id = sdo_data.identity;
 
-    sdo_read_u32(&ctx, slave, 0x1018, 1, &sdo_id.vendor_id);
-    sdo_read_u32(&ctx, slave, 0x1018, 2, &sdo_id.product_code);
-    sdo_read_u32(&ctx, slave, 0x1018, 3, &sdo_id.revision);
-    sdo_read_u32(&ctx, slave, 0x1018, 4, &sdo_id.serial_num);
+  sdo_read_u32(&ctx, slave, 0x1018, 1, &sdo_id.vendor_id);
+  sdo_read_u32(&ctx, slave, 0x1018, 2, &sdo_id.product_code);
+  sdo_read_u32(&ctx, slave, 0x1018, 3, &sdo_id.revision);
+  sdo_read_u32(&ctx, slave, 0x1018, 4, &sdo_id.serial_num);
 
-    //  0x2040 calibration/settings block
-    ati_calibration_t cal = sdo_data.calibration;
+  //  0x2040 calibration/settings block
+  ati_calibration_t cal = sdo_data.calibration;
 
-    sdo_read_string(&ctx, slave, 0x2040, 1, cal.ft_serial, sizeof(cal.ft_serial));
-    sdo_read_string(&ctx, slave, 0x2040, 2, cal.cal_part, sizeof(cal.cal_part));
-    sdo_read_string(&ctx, slave, 0x2040, 3, cal.cal_family, sizeof(cal.cal_family));
-    sdo_read_string(&ctx, slave, 0x2040, 4, cal.cal_time, sizeof(cal.cal_time));
-    sdo_read_u8(&ctx, slave, 0x2040, 41, &cal.force_units);
-    sdo_read_u8(&ctx, slave, 0x2040, 42, &cal.torque_units);
-    sdo_read_s32(&ctx, slave, 0x2040, 49, &cal.counts_per_force);
-    sdo_read_s32(&ctx, slave, 0x2040, 50, &cal.counts_per_torque);
+  sdo_read_string(&ctx, slave, 0x2040, 1, cal.ft_serial, sizeof(cal.ft_serial));
+  sdo_read_string(&ctx, slave, 0x2040, 2, cal.cal_part, sizeof(cal.cal_part));
+  sdo_read_string(&ctx, slave, 0x2040, 3, cal.cal_family, sizeof(cal.cal_family));
+  sdo_read_string(&ctx, slave, 0x2040, 4, cal.cal_time, sizeof(cal.cal_time));
+  sdo_read_u8(&ctx, slave, 0x2040, 41, &cal.force_units);
+  sdo_read_u8(&ctx, slave, 0x2040, 42, &cal.torque_units);
+  sdo_read_s32(&ctx, slave, 0x2040, 49, &cal.counts_per_force);
+  sdo_read_s32(&ctx, slave, 0x2040, 50, &cal.counts_per_torque);
 
-    // 0x2020 tool transform
-    ati_transform_t tf = sdo_data.transform;
+  // 0x2020 tool transform
+  ati_transform_t tf = sdo_data.transform;
 
-    sdo_read_s32(&ctx, slave, 0x2020, 1, &tf.Rx);
-    sdo_read_s32(&ctx, slave, 0x2020, 2, &tf.Ry);
-    sdo_read_s32(&ctx, slave, 0x2020, 3, &tf.Rz);
-    sdo_read_s32(&ctx, slave, 0x2020, 4, &tf.Dx);
-    sdo_read_s32(&ctx, slave, 0x2020, 5, &tf.Dy);
-    sdo_read_s32(&ctx, slave, 0x2020, 6, &tf.Dz);
+  sdo_read_s32(&ctx, slave, 0x2020, 1, &tf.Rx);
+  sdo_read_s32(&ctx, slave, 0x2020, 2, &tf.Ry);
+  sdo_read_s32(&ctx, slave, 0x2020, 3, &tf.Rz);
+  sdo_read_s32(&ctx, slave, 0x2020, 4, &tf.Dx);
+  sdo_read_s32(&ctx, slave, 0x2020, 5, &tf.Dy);
+  sdo_read_s32(&ctx, slave, 0x2020, 6, &tf.Dz);
 
 
-    FILE *fp = fopen(out_filename, "w");
-    fprintf(fp, "t,fx,fy,fz,tx,ty,tz\n");
-    double t = 0.0;
-    double dt = 0.001;
-
-    printf("Warming up (5s)");
-    usleep(1000000);
-    printf("Warming up (4s)");
-    usleep(1000000);
-    printf("Warming up (3s)");
-    usleep(1000000);
-    printf("Warming up (2s)");
-    usleep(1000000);
-    printf("Warming up (1s)");
-    usleep(1000000);
-
+  FILE *fp = fopen(out_filename, "w");
+  fprintf(fp, "t,fx,fy,fz,tx,ty,tz\n");
+  double t = 0.0;
+  double dt = 0.001;
 
   while (1) {
     // Keep control words zero unless command needs to be sent
@@ -209,13 +198,19 @@ int main(int argc, char *argv[]) {
     int wkc = ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
 
     if (wkc >= expectedWKC) {
-      printf("Fx=%+5.5f  Fy=%+5.5f  Fz=%+5.5f  Tx=%+5.5f  Ty=%+5.5f  Tz=%+5.5f\n",
-          (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
-          (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
-      fprintf(fp, "%f,%f,%f,%f,%f,%f,%f\n", t,
-          (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
-          (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
-      t += dt;
+      if (t > 5) {
+        printf("Fx=%+5.5f  Fy=%+5.5f  Fz=%+5.5f  Tx=%+5.5f  Ty=%+5.5f  Tz=%+5.5f\n",
+            (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
+            (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
+        fprintf(fp, "%f,%f,%f,%f,%f,%f,%f\n", t,
+            (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
+            (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
+        t += dt;
+      }
+      else {
+        if (fabs(t - roundf(t)) < 1e-6) {
+          printf("Warming up (%ds)\n", 5 - (int) roundf(t));
+        }
     }
     else {
       fprintf(stderr, "Bad WKC: got %d expected >= %d\n", wkc, expectedWKC);
