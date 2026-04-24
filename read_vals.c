@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
     int wkc = ecx_receive_processdata(&ctx, EC_TIMEOUTRET);
 
     if (wkc >= expectedWKC) {
-      printf("Fx=%f  Fy=%f  Fz=%f  Tx=%f  Ty=%f  Tz=%f\n",
+      printf("Fx=%+5.5f  Fy=%+5.5f  Fz=%+5.5f  Tx=%+5.5f  Ty=%+5.5f  Tz=%+5.5f\n",
           (double) in->fx / cal.counts_per_force, (double) in->fy / cal.counts_per_force, (double) in->fz / cal.counts_per_force,
           (double) in->tx / cal.counts_per_torque, (double) in->ty / cal.counts_per_torque, (double) in->tz / cal.counts_per_torque);
       fprintf(fp, "%f,%f,%f,%f,%f,%f,%f\n", t,

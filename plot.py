@@ -12,6 +12,9 @@ tx, ty, tz = [], [], []
 with open(filename, 'r') as f:
     reader = csv.DictReader(f)
     for row in reader:
+        if any(row[c] is None or row[c] == "" for c in cols):
+            print("Skipping incomplete row:", row)
+            continue
         t.append(float(row['t']))
         fx.append(float(row['fx']))
         fy.append(float(row['fy']))
