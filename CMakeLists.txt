@@ -5,5 +5,5 @@ add_subdirectory(soem)
 add_executable(read_vals read_vals.c)
 add_executable(zero zero.c)
 
-target_link_libraries(read_vals soem)
-target_link_libraries(zero soem)
+target_link_libraries(read_vals soem m)
+target_link_libraries(zero soem m)
